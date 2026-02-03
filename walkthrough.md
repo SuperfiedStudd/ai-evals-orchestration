@@ -126,15 +126,7 @@ create table public.eval_metrics (
 ### 2. Running the Real Backend
 The backend is now a FastAPI server that connects to real AI providers.
 ```bash
-# 1. Install Dependencies
 pip install -r requirements.txt
-
-# 2. Set Environment Variables (.env)
-# SUPABASE_URL=...
-# SUPABASE_SERVICE_ROLE_KEY=...
-# OPENAI_API_KEY=... (For Server-side Transcription)
-
-# 3. a) Run the Server
 uvicorn src.api:app --reload
 ```
 
@@ -148,8 +140,8 @@ npm run dev
 Open the provided `http://localhost...` URL.
 
 ### 4. Verification Checklist
-- [ ] **Transcription**: Upload an audio file. Confirm it's transcribed via OpenAI Whisper (check console latency).
-- [ ] **Models**: Enter valid API keys for models (e.g., `gpt-4o` with key).
-- [ ] **Orchestration**: Click Run. Watch status poll from "Running" -> "Complete".
-- [ ] **Results**: Verify rows appear in table.
-- [ ] **Decision**: Click Ship/Iterate/Rollback. Verify alert confirms success.
+-  Upload audio and confirm Whisper transcription
+-  Configure models with valid API keys
+-  Run evaluation and observe status progression
+-  Verify results and metrics rendering
+-  Submit Ship / Iterate / Rollback decision
