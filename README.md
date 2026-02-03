@@ -64,7 +64,7 @@ Run the provided SQL schema in your Supabase SQL Editor to create the necessary 
 5.  Click **Run Evaluation**.
 6.  Review results and submit a final decision.
 
-## Simulated Pilot: Case Study
+## Simulated Pilot (Design Validation): Case Study
 
 **Scenario**: A creative director wants to automate the first pass of editing raw podcast transcripts into "LinkedIn-ready" posts.
 
@@ -87,3 +87,4 @@ Run the provided SQL schema in your Supabase SQL Editor to create the necessary 
 *   **Heuristic Evals**: Evaluation scores (`edit_quality`, `structural_clarity`) are currently rule-based heuristics (length, regex), not model-graded.
 *   **Infrastructure**: Designed for local execution; orchestration is handled via FastAPI `BackgroundTasks` rather than a distributed queue (Celery/Redis).
 *   **Security**: User generation API keys are passed from the client for the session and are not stored persistently in the database, but production deployments should implement a secure vault.
+*   **User Feedback Loops**: The platform currently captures explicit human decisions only; future iterations would incorporate implicit user signals (edits accepted, time-to-publish, rework frequency) to continuously refine eval metrics and model selection.
