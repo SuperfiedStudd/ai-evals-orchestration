@@ -1,0 +1,156 @@
+# PRD v1.0
+## AI Evals and Experimentation Platform for Creative AI
+
+**Status:** Locked for build
+
+---
+
+## 1. Product Summary
+An internal decision system that determines when creative AI models are good enough to ship by measuring real editor effort, cost, latency, and trust, not just benchmark accuracy.
+
+Designed for AI product teams shipping models into creative workflows (ex: Descript).
+
+---
+
+## 2. Problem
+Creative AI teams often ship models that look good on offline metrics but fail in real editing workflows, increasing manual fixes, slowing iteration, and eroding creator trust.
+
+The missing capability is not better models, but clear, product-facing quality decisions.
+
+---
+
+## 3. Target User
+- **Primary:** AI Product Manager or AI Research Lead  
+- **Secondary:** Applied ML Engineer supporting production rollout  
+- This is an internal enablement tool, not a consumer product.
+
+---
+
+## 4. Core Product Goal
+Enable fast, confident **ship / iterate / rollback** decisions for creative AI models using signals tied to real editor experience.
+
+---
+
+## 5. Explicit Non-Goals
+- Training foundation models  
+- Academic benchmarking  
+- A full MLOps platform  
+- A polished consumer UI  
+
+If it does not help a PM decide what to ship, it is out of scope.
+
+---
+
+## 6. Decisions This Product Must Answer
+1. Which model should power this workflow today?
+2. Is the quality improvement worth the added cost or latency?
+3. What exactly breaks editor trust in this output?
+
+If these are not answerable in under 5 minutes, the product fails.
+
+---
+
+## 7. Success Metrics
+Metrics are product-facing and designed to reflect real editing effort and user trust.
+
+### Quality
+- Structural correctness (timestamps, speakers, formatting)
+- Semantic accuracy (LLM-judged)
+- Edit distance from human-corrected output
+
+### Effort
+- Number of manual edits required
+- Output rejection rate
+- Estimated time-to-final-edit proxy
+
+### Cost and Performance
+- Cost per minute of media
+- End-to-end latency
+- Cache reuse rate
+
+### Trust
+- Model acceptance rate
+- Repeat usage after first run
+
+---
+
+## 8. Core Features (MVP Only)
+
+### 8.1 Model Comparison
+Run the same media through multiple models and return a ranked recommendation with reasoning.
+
+Outputs:
+- Winner
+- Why it won
+- Tradeoffs accepted
+
+### 8.2 Editor-Centric Evaluation
+Use LLM-based evaluation prompts that simulate professional editor judgment.
+
+Evaluation focuses on:
+- Flow interruption
+- Fix-first issues
+- Publish readiness
+
+This is the key product insight.
+
+### 8.3 Experiment Tracking
+Every run is logged with:
+- Media reference
+- Models compared
+- Metrics
+- Final decision
+
+Enables trend analysis over time.
+
+### 8.4 Feedback Loop
+Capture user edits and corrections and store deltas between AI output and final version.
+
+This feeds future evaluations and explains failures.
+
+---
+
+## 9. User Flow (Happy Path)
+1. Select media
+2. Choose models to compare
+3. Run experiment
+4. Review ranked results
+5. Read explanation
+6. Decide: ship, iterate, or rollback
+
+Target time: **under 5 minutes**
+
+---
+
+## 10. System Architecture (High-Level)
+- Orchestration: Antigravity
+- Backend: Python FastAPI (evaluation and comparison logic)
+- Storage: Supabase (runs, metrics, feedback)
+- Models: first-party or third-party via API
+- UI: minimal, decision-focused (no full frontend requirement)
+
+Separation is intentional and mirrors real AI organizations.
+
+---
+
+## 11. Key Tradeoffs Accepted
+- LLM evaluation bias is acceptable for MVP
+- Media length is limited to control cost
+- No real-time learning loop in v1
+
+We prioritize decision velocity over perfection.
+
+---
+
+## 12. Definition of Done (MVP)
+- Compare at least two models on one workflow
+- Produce a ranked recommendation with explanation
+- Persist metrics and decisions
+- Demoable end-to-end without manual intervention
+
+If this is true, the product ships.
+
+---
+
+## 13. Why This Matters
+This platform makes AI quality legible to product teams. It bridges research, infrastructure, and user experience without overengineering.

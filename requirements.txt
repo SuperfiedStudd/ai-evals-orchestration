@@ -1,0 +1,10 @@
+pydantic
+tenacity
+pytest
+fastapi
+uvicorn
+supabase
+python-dotenv
+openai
+anthropic
+python-multipart
