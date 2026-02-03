@@ -11,21 +11,24 @@ The system consists of a Python-based **Orchestration Engine** (Backend) and a R
 ### Orchestration Flow (Backend)
 The `OrchestrationEngine` (`src/orchestrator.py`) manages the lifecycle of an experiment through 4 distinct phases:
 
-1.  **Experiment Creation**: 
-    - Initializes a record in Supabase with `status="running"`.
-2.  **Model Execution Phase**:
-    - Takes a list of models (e.g., GPT-4o, Claude).
-    - **Transcription**: Uses a *fixed, internal ASR model* to normalize input (simulated).
-    - **Editing**: Sends the same transcript and prompt to all user-selected models via `FastAPIClient`.
-    - **Persistence**: Saves raw outputs, latency, and cost to `model_runs` table.
-3.  **Evaluation Phase**:
-    - Feeds model outputs into an auto-evaluator (e.g., LLM-as-a-judge).
-    - Scores outputs on "Structure" and "Style".
-    - Persists scores to `eval_metrics` table.
-4.  **Comparison & Decision**:
-    - Generates a recommendation (Winner/Tradeoffs).
-    - **Pauses** for Human Decision.
-    - Updates status to `COMPLETE` only after human input (Ship/Iterate/Rollback).
+1. **Experiment Creation**
+   - Initializes a record in Supabase with `status="running"`.
+
+2. **Model Execution Phase**
+   - Takes a list of models (e.g., GPT-4o, Claude).
+   - **Transcription**: Uses OpenAI Whisper via `AIProviderService.transcribe_audio` to normalize audio input.
+   - **Editing**: Sends the same transcript and prompt to all user-selected models via `FastAPIClient`.
+   - **Persistence**: Saves raw outputs, latency, and cost to the `model_runs` table.
+
+3. **Evaluation Phase**
+   - Applies a **rule-based heuristic evaluator** (length, structure checks).
+   - Scores outputs on structural clarity and edit quality.
+   - Persists scores to the `eval_metrics` table.
+
+4. **Comparison & Decision**
+   - Generates a heuristic-based recommendation (winner + tradeoffs).
+   - **Pauses** for mandatory human decision.
+   - Updates status to `COMPLETE` only after Ship / Iterate / Rollback input.
 
 ### Data Flow Diagram
 ```mermaid
@@ -34,7 +37,7 @@ graph TD
     Engine -->|Create| DB[(Supabase)]
     Engine -->|Run| Models[LLM Providers]
     Models -->|Result| Engine
-    Engine -->|Eval| Evaluator[Auto-Eval Service]
+    Engine -->|Evaluate| Evaluator[Heuristic Eval Logic]
     Evaluator -->|Scores| Engine
     Engine -->|Persist| DB
     User -->|Final Decision| DB
