@@ -47,46 +47,47 @@ graph TD
 
 ### 1. User Interface (Frontend `ui/`)
 A polished, internal-tool UI built with **React + Vite + Tailwind**.
-*   **Visual Style**: "Charcoal & Neon Green" dark mode. No external branding.
-*   **Dual-Mode Input**:
-    *   **Audio**: Upload `.mp3` / `.wav`. Triggers "Auto-Transcription" simulation.
-    *   **Text**: Paste transcript. Skips transcription step.
-*   **Dynamic Model Config**:
-    *   3 flexible "Slots".
-    *   User defines Model Name (e.g., "Fine-tuned-v2") and API Key.
-    *   Keys are masked and passed transiently (never stored).
-*   **Results Dashboard**:
-    *   Comparative table showing: Quality, Edit Effort, Latency, Cost.
-    *   Highlights the "Winner" (mocked logic).
-*   **Human-in-the-Loop**:
-    *   Forced human decision step (Ship/Iterate/Rollback) required to finish.
+
+- **Visual Style**: Dark mode (“Charcoal & Neon Green”), no external branding.
+- **Dual-Mode Input**
+  - **Audio**: Upload `.mp3` / `.wav`, triggers Whisper transcription.
+  - **Text**: Paste transcript directly and skip transcription.
+- **Dynamic Model Configuration**
+  - Up to 3 flexible model slots.
+  - User supplies model name and API key.
+  - Keys are masked, passed transiently, and never stored.
+- **Results Dashboard**
+  - Side-by-side comparison of quality, latency, and cost.
+  - Heuristic recommendation is highlighted.
+- **Human-in-the-Loop Control**
+  - A **Ship / Iterate / Rollback** decision is required to finalize each experiment.
 
 ### 2. Backend Engine (`src/`)
-*   **Strict Typing**: All data flows use Pydantic models (`src/models.py`) to ensure schema compliance.
-*   **Resilience**: `FastAPIClient` (`src/clients.py`) implements retries using `tenacity` (2 attempts per call).
-*   **Persistence**: `SupabaseClient` handles all DB operations.
-    *   **Secrets**: API Keys are handled securely via env vars or user input, never logged.
+- **Strict Typing**: All request/response flows validated with Pydantic (`src/models.py`).
+- **Resilience**: `FastAPIClient` (`src/clients.py`) implements retries using `tenacity`.
+- **Persistence**: `SupabaseClient` manages all database reads/writes.
+- **Secrets Handling**: API keys are supplied via env vars or runtime input and never logged.
 
 ## Implementation Status
 
 | Component | Feature | Status | Implementation Detail |
-| :--- | :--- | :--- | :--- |
-| **Data Layer** | Database Schema | ✅ **Real** | SQL schema provided, verified against Supabase. |
-| | Models (Pydantic) | ✅ **Real** | `src/models.py` |
-| **Logic** | Orchestrator Loop | ✅ **Real** | `src/orchestrator.py` |
-| | Error Handling | ✅ **Real** | Retry logic + Status updates on failure. |
-| | Supabase Client | ✅ **Real** | Connects to live Supabase instance. |
-| **Integrations** | Model Execution | ✅ **Real** | `AIProviderService` uses `openai`/`anthropic`/`google-generativeai` SDKs. |
-| | Model Evaluation | ✅ **Real** | Heuristic evaluation implemented in `AIProviderService`. |
-| **UI** | Components | ✅ **Real** | React components fully implemented. |
-| | Workflows | ✅ **Real** | All user interactions (Upload -> Config -> Run -> Decide) work. |
-| | API Connection | ✅ **Real** | `App.tsx` calls `http://localhost:8000` endpoints. |
-| | Transcription | ✅ **Real** | `AIProviderService.transcribe_audio` uses OpenAI Whisper. |
+|---------|--------|--------|-----------------------|
+| Data Layer | Database Schema | ✅ Real | SQL schema provided and verified in Supabase |
+| | Pydantic Models | ✅ Real | `src/models.py` |
+| Logic | Orchestrator Loop | ✅ Real | `src/orchestrator.py` |
+| | Error Handling | ✅ Real | Retry logic + per-run failure isolation |
+| | Supabase Client | ✅ Real | Live Supabase integration |
+| Integrations | Model Execution | ✅ Real | OpenAI / Anthropic SDKs |
+| | Model Evaluation | ✅ Real | Heuristic evaluation logic |
+| UI | Components | ✅ Real | React components implemented |
+| | Workflows | ✅ Real | Upload → Configure → Run → Decide |
+| | API Connection | ✅ Real | `App.tsx` → FastAPI |
+| | Transcription | ✅ Real | OpenAI Whisper |
 
 ## Operation Guide
 
 ### 1. Database Setup
-Run this SQL in your Supabase SQL Editor to initialize tables:
+Run the following SQL in the Supabase SQL Editor:
 
 ```sql
 create extension if not exists "uuid-ossp";
