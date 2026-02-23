@@ -2,13 +2,14 @@
 
 # AI Evals Orchestration Platform
 
-A multi-model AI evaluation and experimentation platform designed for creative editing workflows. It enables creators to compare LLM outputs (quality, cost, latency) on transcription and editing tasks side-by-side with human-in-the-loop decision making.
+Run identical prompts across multiple LLMs and compare quality, cost, and latency before shipping.
+This system enables structured model selection using deterministic scoring and mandatory human judgment.
 
 ---
 
-## 1. Dashboard Overview
+## Configure Identical Runs to Eliminate Bias
 
-Access the model comparison workspace to configure up to three models side-by-side. Easily upload audio or text and securely configure provider API keys.
+Control variables by standardizing the input prompt and data. This enables the decision maker to confidently attribute any output variance—be it quality, cost, or speed—directly to the model rather than prompt discrepancies.
 
 <p align="center">
   <img src="./dashboard.png" width="85%" />
@@ -16,9 +17,9 @@ Access the model comparison workspace to configure up to three models side-by-si
 
 ---
 
-## 2. Running a Model Evaluation
+## Parallel Model Execution
 
-Execute evaluations with identical inputs across all models to guarantee a fair comparison. The platform handles parallel prompt execution and secure API key injection.
+Compare raw inference speed and reliability under identical constraints. Executing models in parallel provides an accurate, real-world baseline to decide which provider meets the application's strict latency and uptime requirements.
 
 <p align="center">
   <img src="./results1.png" width="85%" />
@@ -26,33 +27,44 @@ Execute evaluations with identical inputs across all models to guarantee a fair 
 
 ---
 
-## 3. Detailed Model Metrics
+## Deterministic Scoring & Tradeoff Visibility
 
-Analyze model performance using robust scoring heuristics. Each output is evaluated for Edit Quality, Structural Clarity, and Publish Ready status, alongside precise Cost and Latency metrics.
+Quantify model performance beyond qualitative impressions. By capturing precise cost and latency metrics alongside programmatic heuristics, engineering and product can make objective tradeoffs between speed, price, and quality.
 
 <p align="center">
   <img src="./results2.png" width="85%" />
 </p>
 
+```text
+Evaluation Heuristics
+
+- Edit Quality → length normalization + diff density
+- Structural Clarity → formatting & paragraph integrity
+- Publish Ready → grammar + completeness
+- Winner Selection → weighted aggregate score
+```
+
 ---
 
-## 4. Experiment History & Decision Layer
+## Human-in-the-Loop Release Control
 
-Maintain full auditability of all evaluations. The platform enforces human-in-the-loop control by requiring users to make an explicit Ship, Iterate, or Rollback decision.
+Maintain an immutable audit trail of every output and human decision. Prior to deployment, users are forced to analyze the deterministic scores and explicitly determine whether to ship, iterate, or rollback.
 
 <p align="center">
   <img src="./exphistory.png" width="85%" />
 </p>
 
+Evaluation does not auto-ship. Human judgment is mandatory.
+
 ---
 
-## Architecture
+## System Architecture
 
-*   **Backend**: Python **FastAPI** service handling orchestration, AI provider integration, and heuristic evaluation.
-*   **Frontend**: **React** (Vite + TypeScript) application for experiment configuration and results visualization.
-*   **Persistence**: **Supabase** (PostgreSQL) for storing experiment metadata, run logs, and decisions.
-*   **Orchestration**: Asynchronous background workers process transcription, model inference, and evaluation to prevent UI locking.
-*   **Isolation**: Individual model failures (e.g., API errors) are isolated, allowing the experiment to continue with remaining successful models.
+*   Parallel model invocation
+*   Failure-tolerant orchestration
+*   Cost + latency tracked per call
+*   Deterministic scoring pass post-generation
+*   Structured experiment logging
 
 ## Local Setup
 
