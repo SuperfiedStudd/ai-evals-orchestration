@@ -1,13 +1,50 @@
-# AI Evals & Experimentation Platform
+---
+
+# AI Evals Orchestration Platform
 
 A multi-model AI evaluation and experimentation platform designed for creative editing workflows. It enables creators to compare LLM outputs (quality, cost, latency) on transcription and editing tasks side-by-side with human-in-the-loop decision making.
 
-## Why This Exists
-Automating creative editing requires more than just "generating text." It requires balancing **editorial quality**, **structural clarity**, **latency**, and **cost**. This platform allows engineers and creators to:
-1.  Run the same prompt/transcript against multiple models (e.g., GPT-4o, Claude 3 Haiku).
-2.  Visualize performance metrics (latency, cost, heuristic scores).
-3.  Manually review outputs and commit to a **Ship**, **Iterate**, or **Rollback** decision.
-4.  Maintain a persistent log of experiments to track model performance over time.
+---
+
+## 1. Dashboard Overview
+
+Access the model comparison workspace to configure up to three models side-by-side. Easily upload audio or text and securely configure provider API keys.
+
+<p align="center">
+  <img src="./dashboard.png" width="85%" />
+</p>
+
+---
+
+## 2. Running a Model Evaluation
+
+Execute evaluations with identical inputs across all models to guarantee a fair comparison. The platform handles parallel prompt execution and secure API key injection.
+
+<p align="center">
+  <img src="./results1.png" width="85%" />
+</p>
+
+---
+
+## 3. Detailed Model Metrics
+
+Analyze model performance using robust scoring heuristics. Each output is evaluated for Edit Quality, Structural Clarity, and Publish Ready status, alongside precise Cost and Latency metrics.
+
+<p align="center">
+  <img src="./results2.png" width="85%" />
+</p>
+
+---
+
+## 4. Experiment History & Decision Layer
+
+Maintain full auditability of all evaluations. The platform enforces human-in-the-loop control by requiring users to make an explicit Ship, Iterate, or Rollback decision.
+
+<p align="center">
+  <img src="./exphistory.png" width="85%" />
+</p>
+
+---
 
 ## Architecture
 
