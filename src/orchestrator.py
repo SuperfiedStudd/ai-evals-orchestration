@@ -53,10 +53,10 @@ class OrchestrationEngine:
             for model_name in input_data.model_list:
                 api_key = input_data.user_api_keys.get(model_name, "")
                 
-                # Identify provider (simple check)
+                # Identify provider (simple heuristic if not explicitly set)
                 provider = "openai"
                 if "claude" in model_name.lower(): provider = "anthropic"
-                # Removed google check
+                elif "gemini" in model_name.lower(): provider = "gemini"
                 
                 model_config = {
                     "name": model_name,

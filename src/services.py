@@ -14,8 +14,8 @@ load_dotenv()
 
 class AIProviderService:
     """
-    Real AI Provider Service that connects to OpenAI/Anthropic.
-    Also handles Transcription via OpenAI Whisper.
+    AI Provider Service. Routes model execution to OpenAI, Anthropic, or Gemini
+    via the unified provider registry. Also handles Transcription via OpenAI Whisper.
     """
 
     def __init__(self):
@@ -49,85 +49,44 @@ class AIProviderService:
             "cost_usd": 0.006 * (latency / 60000) # Rough estimate $0.006/min
         }
 
-    # Removed retry decorator to allow Orchestrator to handle individual failures without excessive waiting
     def run_model(self, transcript: str, model_config: Dict[str, str], prompt_template: str) -> Dict[str, Any]:
         """
         Runs the model with the given config and prompt.
+        Delegates execution to the isolated provider layer via registry.
         model_config: { "name": "gpt-4o", "provider": "openai", "api_key": "sk-..." }
         """
-        input_name = model_config.get("name", "").lower().strip()
-        provider = model_config.get("provider", "openai").lower() 
+        from .providers.registry import get_provider, resolve_model
+        
+        provider_name = model_config.get("provider", "openai").lower().strip()
+        requested_model = model_config.get("name", "").lower().strip()
         api_key = model_config.get("api_key")
 
-        # STRICT DEMO MAPPING
-        # Force specific versions for stability
-        model_id = "gpt-4o" # Default fallback
-        
-        if "gpt" in input_name or "openai" in provider:
-            model_id = "gpt-4o"
-            provider = "openai"
-        elif "claude" in input_name or "anthropic" in provider:
-            model_id = "claude-3-haiku-20240307"
-            provider = "anthropic"
-        else:
-            # Fallback or unknown
-            if "claude" in input_name: 
-                model_id = "claude-3-haiku-20240307"
-                provider = "anthropic"
-
         if not api_key:
-            raise ValueError(f"No API Key provided for model {model_id} ({provider})")
+            raise ValueError(f"No API Key provided for provider {provider_name}")
 
-        start_time = time.time()
-        output_text = ""
+        # Resolve model exactly or fallback to provider default
+        final_model = resolve_model(provider_name, requested_model)
         
         # Prepare Prompt
         full_prompt = f"{prompt_template}\n\nTRANSCRIPT:\n{transcript}"
 
+        # Delegate to the unified provider interface
         try:
-            if provider == "openai":
-                client = openai.OpenAI(api_key=api_key)
-                completion = client.chat.completions.create(
-                    model=model_id,
-                    messages=[{"role": "user", "content": full_prompt}]
-                )
-                output_text = completion.choices[0].message.content
-
-            elif provider == "anthropic":
-                # Standard SDK usage as requested - EXACT FIX
-                from anthropic import Anthropic
-                client = Anthropic(api_key=api_key)
-                
-                # Hardcoded demo-safe model
-                model_id = "claude-3-haiku-20240307"
-
-                message = client.messages.create(
-                    model=model_id,
-                    max_tokens=1024,
-                    messages=[{
-                        "role": "user", 
-                        "content": [{"type": "text", "text": full_prompt}]
-                    }]
-                )
-                output_text = message.content[0].text
-
-            else:
-                raise ValueError(f"Unsupported provider: {provider}")
-
+             provider_instance = get_provider(provider_name)
+             result = provider_instance.generate(
+                 prompt=full_prompt, 
+                 api_key=api_key, 
+                 model=final_model
+             )
         except Exception as e:
-            # Re-raise to let Orchestrator handle it locally
-            raise RuntimeError(f"Provider {provider} ({model_id}) failed: {str(e)}")
-
-        latency = int((time.time() - start_time) * 1000)
-        
-        # Simple cost heuristic (placeholder)
-        cost = 0.01 
+             # Re-raise to let Orchestrator handle it locally (preserving original behavior)
+             raise RuntimeError(f"Provider {provider_name} ({final_model}) failed: {str(e)}")
 
         return {
-            "raw_output": output_text,
-            "latency_ms": latency,
-            "cost_usd": cost,
-            "model_name": model_id # Return actual used model ID
+            "raw_output": result.raw_output,
+            "latency_ms": result.latency_ms,
+            "cost_usd": result.cost_usd,
+            "model_name": result.model_name
         }
 
     def evaluate_output(self, raw_output: str) -> Dict[str, Any]:
