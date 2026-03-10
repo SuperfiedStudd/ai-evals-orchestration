@@ -1,0 +1,1 @@
+# Ensure package is tracked by Git so pytest in CI can discover src.providers
