@@ -58,6 +58,7 @@ export const ModelConfigCard: React.FC<ModelConfigCardProps> = ({ models, onChan
                                     <option value="">Select...</option>
                                     <option value="openai">OpenAI</option>
                                     <option value="anthropic">Anthropic</option>
+                                    <option value="gemini">Gemini</option>
                                 </select>
                             </div>
                             <div>
