@@ -57,7 +57,6 @@ async def transcribe(file: UploadFile = File(None), text: str = Form(None)):
         try:
             result = ai_service.transcribe_audio(temp_filename)
             # Cleanup
-            import os
             os.remove(temp_filename)
             return {
                 "transcript": result["transcript"],
@@ -66,8 +65,8 @@ async def transcribe(file: UploadFile = File(None), text: str = Form(None)):
                 "cost_usd": result["cost_usd"]
             }
         except Exception as e:
-            import os
-            if os.path.exists(temp_filename): os.remove(temp_filename)
+            if os.path.exists(temp_filename):
+                os.remove(temp_filename)
             raise HTTPException(status_code=500, detail=str(e))
 
     raise HTTPException(status_code=400, detail="Either file or text is required")
@@ -145,7 +144,6 @@ async def run_background_orchestration(experiment_id: str, input_data: Experimen
     finally:
         # Cleanup temp file
         if file_path:
-            import os
             if os.path.exists(file_path):
                 os.remove(file_path)
 

@@ -1,7 +1,7 @@
 import sys
 import logging
-from src.models import ExperimentInput, MediaType, Decision
-from src.orchestrator import OrchestrationEngine
+from .models import ExperimentInput, MediaType, Decision
+from .orchestrator import OrchestrationEngine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

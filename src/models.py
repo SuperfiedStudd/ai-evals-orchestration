@@ -25,7 +25,7 @@ class ExperimentStatus(str, Enum):
 class ExperimentInput(BaseModel):
     media_id: str
     media_type: MediaType
-    model_list: List[str] = Field(..., max_items=3, min_items=1)
+    model_list: List[str] = Field(..., max_length=3, min_length=1)
     user_api_keys: Dict[str, str] # Ephemeral, not stored
     experiment_metadata: Optional[Dict[str, Any]] = None
 
