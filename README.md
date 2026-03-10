@@ -5,7 +5,7 @@ Run identical prompts across multiple LLMs, compare quality, cost, and latency, 
 ## What It Does
 
 1. **Transcribe** — upload audio (OpenAI Whisper) or paste text directly.
-2. **Run** — send the same prompt to up to 3 models (OpenAI, Anthropic) in parallel.
+2. **Run** — send the same prompt to up to 3 models (OpenAI, Anthropic, Gemini) in parallel.
 3. **Evaluate** — score each output with deterministic heuristics (edit quality, structural clarity, publish readiness).
 4. **Decide** — review results side-by-side and submit a **Ship / Iterate / Rollback** decision. Nothing auto-ships.
 
@@ -75,7 +75,9 @@ UI runs at `http://localhost:5173`.
 | `SUPABASE_URL` | Yes | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase backend access |
 
-Generation model API keys (OpenAI, Anthropic) are entered per-session in the UI and are never stored.
+> [!NOTE]
+> **Generation API Keys**
+> API keys for model generation (`OpenAI`, `Anthropic`, `Gemini`) are passed securely per-session via the UI. They are **never** stored in the database or backend environment variables.
 
 ---
 
@@ -93,11 +95,17 @@ Tests use mocked AI and database clients — no API keys or Supabase connection 
 
 ```
 src/
-  api.py          # FastAPI routes
-  orchestrator.py # Experiment lifecycle engine
-  services.py     # AI provider + Supabase clients
-  models.py       # Pydantic models and enums
-  main.py         # CLI demo runner
+  api.py            # FastAPI routes
+  orchestrator.py   # Experiment lifecycle engine
+  services.py       # AI provider service + Supabase client
+  models.py         # Pydantic models and enums
+  main.py           # CLI demo runner
+  providers/
+    base.py         # Unified provider interface
+    registry.py     # Provider routing + model defaults
+    openai_provider.py
+    anthropic_provider.py
+    gemini_provider.py
 tests/
   test_orchestrator.py  # Unit tests (mocked dependencies)
 schema.sql              # Supabase table definitions
@@ -108,6 +116,7 @@ schema.sql              # Supabase table definitions
 
 ## Architecture
 
+- **Unified Provider Layer** — Model execution is isolated by provider (`OpenAI`, `Anthropic`, `Gemini`) behind a standard interface and resolved via a central registry, preventing spaghetti routing logic and making adding new providers trivial.
 - **Parallel model invocation** — same prompt, same transcript, different providers
 - **Failure-tolerant orchestration** — individual model failures are logged and persisted without crashing the experiment
 - **Cost + latency tracked per call**
@@ -120,5 +129,5 @@ schema.sql              # Supabase table definitions
 
 - **Heuristic evals**: Scores (`edit_quality`, `structural_clarity`, `publish_ready`) are rule-based heuristics, not LLM-graded.
 - **Local only**: Orchestration runs via FastAPI `BackgroundTasks`, not a distributed queue.
-- **Two providers**: OpenAI and Anthropic only. No Google/other providers yet.
+- **Three providers**: OpenAI, Anthropic, and Gemini. Additional providers require a new adapter in `src/providers/`.
 - **Security**: User API keys are passed from the UI per-session and not persisted, but production deployments should use a secret vault.
